@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>university Accomodation portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --navy:#152238;
+    --navy-2:#1f3252;
+    --paper:#F6F4EF;
+    --ink:#1c1c1a;
+    --muted:#6b6f76;
+    --gold:#B8863E;
+    --gold-soft:#EADFC7;
+    --line:#e3ded3;
+    --danger:#b4432f;
+    --ok:#3d7a4f;
+    --radius:10px;
+    --shadow:0 6px 24px rgba(21,34,56,0.08);
+    font-family:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);}
+  h1,h2,h3,.display{font-family:'Fraunces',serif;}
+  a{text-decoration:none;color:inherit;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px;}
+
+  /* NAV */
+  header.site{position:sticky;top:0;z-index:40;background:rgba(246,244,239,0.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);}
+  nav{display:flex;align-items:center;justify-content:space-between;padding:16px 0;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;}
+  .brand .mark{width:34px;height:34px;border-radius:8px;background:var(--navy);color:var(--gold-soft);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;}
+  .brand .sub{display:block;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.04em;}
+  .navlinks{display:flex;gap:28px;font-size:14px;font-weight:600;}
+  .navlinks a{color:var(--ink);opacity:.75;padding:4px 0;border-bottom:2px solid transparent;}
+  .navlinks a:hover,.navlinks a.active{opacity:1;border-color:var(--gold);}
+  @media(max-width:720px){.navlinks{display:none;}}
+
+  /* HERO */
+  .hero{background:linear-gradient(160deg,var(--navy) 0%,var(--navy-2) 100%);color:#fff;padding:72px 0 88px;}
+  .eyebrow{display:inline-block;font-size:12px;letter-spacing:.09em;font-weight:700;color:var(--gold-soft);background:rgba(184,134,62,0.15);border:1px solid rgba(184,134,62,0.4);padding:6px 14px;border-radius:999px;margin-bottom:22px;}
+  .hero h1{font-size:44px;line-height:1.12;max-width:640px;margin:0 0 20px;font-weight:600;}
+  .hero p{max-width:560px;color:#cfd6e2;font-size:16px;line-height:1.6;margin-bottom:14px;}
+  .hero-panel{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;margin-top:32px;}
+  .hero-copy{flex:1;min-width:280px;}
+  .deadline-card{width:100%;max-width:360px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:22px;padding:24px;}
+  .deadline-card .eyebrow{display:block;margin-bottom:16px;color:var(--gold-soft);font-size:12px;letter-spacing:.11em;font-weight:700;text-transform:uppercase;background:none;border:none;}
+  .countdown{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .countdown-item{background:rgba(255,255,255,0.12);border-radius:16px;padding:18px 12px;text-align:center;}
+  .countdown-item span{display:block;font-size:32px;font-weight:700;line-height:1;}
+  .countdown-item small{display:block;margin-top:8px;font-size:11px;font-weight:700;letter-spacing:.16em;color:#e6ecf6;}
+  .deadline-note{margin-top:16px;font-size:13px;line-height:1.5;color:#d8e1f0;}
+  .hero-cta{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap;}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:8px;font-weight:600;font-size:14px;border:1px solid transparent;cursor:pointer;transition:transform .12s ease;}
+  .btn:active{transform:scale(.97);}
+  .btn-gold{background:var(--gold);color:#1c1408;}
+  .btn-outline{border-color:rgba(255,255,255,0.35);color:#fff;background:transparent;}
+  .btn-outline:hover{background:rgba(255,255,255,0.08);}
+  .btn-navy{background:var(--navy);color:#fff;}
+  .btn-navy:hover{background:var(--navy-2);}
+
+  /* SECTIONS */
+  section{padding:72px 0;}
+  .section-head{text-align:center;max-width:600px;margin:0 auto 44px;}
+  .section-head .eyebrow{background:none;border:none;color:var(--gold);padding:0;font-size:12px;}
+  .section-head h2{font-size:32px;margin:8px 0 10px;}
+  .section-head p{color:var(--muted);font-size:15px;}
+
+  /* GALLERY */
+  .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .gallery-grid .ph{aspect-ratio:4/3;border-radius:var(--radius);background:repeating-linear-gradient(135deg,#e7e2d6,#e7e2d6 10px,#ddd7c8 10px,#ddd7c8 20px);display:flex;align-items:center;justify-content:center;color:#a39d8c;font-size:13px;font-weight:600;overflow:hidden;}
+  .gallery-grid .ph img{width:100%;height:100%;object-fit:cover;border-radius:var(--radius);}
+  .admin-gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
+  .admin-gallery-card{border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .admin-gallery-card img{width:100%;height:160px;object-fit:cover;display:block;}
+  .admin-gallery-card .meta{padding:12px;font-size:13px;color:var(--muted);}
+  @media(max-width:980px){.gallery-grid{grid-template-columns:1fr 1fr;} .hero-panel,.admin-controls{flex-direction:column;gap:18px;} .deadline-card{max-width:100%;}} 
+  @media(max-width:720px){.footer-grid{grid-template-columns:1fr;} .room-grid{grid-template-columns:1fr;} .steps{flex-wrap:wrap;gap:12px;} .form-actions{flex-direction:column;align-items:stretch;} .btn{width:100%;justify-content:center;} .admin-gallery-grid{grid-template-columns:1fr 1fr;}}
+  @media(max-width:560px){.gallery-grid{grid-template-columns:1fr;} .gallery-grid .ph{min-height:220px;} .admin-gallery-grid{grid-template-columns:1fr;}}
+
+  /* AMENITIES */
+  .amenities-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .amenity-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px;}
+  .amenity-card .icon{width:40px;height:40px;border-radius:8px;background:var(--gold-soft);display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:18px;}
+  .amenity-card h3{margin:0 0 6px;font-size:17px;font-family:'Inter';font-weight:700;}
+  .amenity-card p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.5;}
+  @media(max-width:720px){.amenities-grid{grid-template-columns:1fr;}}
+
+  /* BOOKING */
+  .booking-card{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:36px;max-width:840px;margin:0 auto;}
+  .steps{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;position:relative;}
+  .steps::before{content:'';position:absolute;top:17px;left:0;right:0;height:2px;background:var(--line);z-index:0;}
+  .step{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:8px;background:#fff;padding:0 6px;}
+  .step .dot{width:34px;height:34px;border-radius:50%;background:#fff;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:var(--muted);}
+  .step.active .dot{background:var(--navy);border-color:var(--navy);color:#fff;}
+  .step.done .dot{background:var(--ok);border-color:var(--ok);color:#fff;}
+  .step span.label{font-size:11.5px;font-weight:600;color:var(--muted);}
+  .step.active span.label{color:var(--ink);}
+
+  .form-step h3{display:flex;align-items:center;gap:8px;font-size:19px;font-family:'Inter';font-weight:700;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:22px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr;}}
+  label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;}
+  label .req{color:var(--danger);}
+  input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;font-family:inherit;background:#fdfcfa;}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold);}
+  .field{margin-bottom:18px;}
+  .form-actions{display:flex;justify-content:space-between;margin-top:28px;}
+
+  .room-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px;}
+  @media(max-width:640px){.room-grid{grid-template-columns:1fr;}}
+  .room-card{border:2px solid var(--line);border-radius:10px;padding:20px;cursor:pointer;transition:border-color .12s ease,background .12s ease;}
+  .room-card:hover{border-color:#cbb98a;}
+  .room-card.selected{border-color:var(--gold);background:#FBF6EC;}
+  .room-card .rname{font-weight:700;font-size:15.5px;margin-bottom:2px;}
+  .room-card .rcap{font-size:12.5px;color:var(--muted);margin-bottom:10px;}
+  .room-card .rprice{font-size:22px;font-weight:700;color:var(--navy);}
+  .room-card .rprice .per{font-size:11px;color:var(--muted);font-weight:600;display:block;}
+  .room-card ul{list-style:none;padding:0;margin:12px 0 16px;font-size:12.5px;color:#444;}
+  .room-card ul li{padding:2px 0;}
+  .room-card ul li::before{content:'✓ ';color:var(--ok);font-weight:700;}
+  .room-select-btn{width:100%;padding:10px;border-radius:7px;border:1.5px solid var(--navy);background:transparent;font-weight:700;font-size:13px;cursor:pointer;}
+  .room-card.selected .room-select-btn{background:var(--navy);color:#fff;}
+
+  .addon-box{border:1px solid var(--line);border-radius:10px;padding:20px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px;}
+  .addon-box label{display:flex;gap:10px;align-items:flex-start;font-weight:600;font-size:14px;}
+  .addon-box input[type=checkbox]{width:auto;margin-top:3px;}
+  .note{font-size:12.5px;color:var(--muted);background:#f3f0e8;border-radius:8px;padding:10px 12px;margin-top:8px;}
+
+  .upload-box{border:2px dashed var(--line);border-radius:10px;padding:30px;text-align:center;color:var(--muted);cursor:pointer;}
+  .upload-box.has-file{border-color:var(--ok);color:var(--ok);border-style:solid;}
+
+  .payment-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:18px;}
+  .payment-card.payment-instructions{background:#f7f9ff;}
+  .summary-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(21,34,56,0.08);font-size:14px;}
+  .summary-row:last-child{border-bottom:none;}
+  .summary-row span{color:var(--muted);}
+  .payment-card p{margin:0;}
+
+  .admin-controls{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;margin-bottom:22px;flex-wrap:wrap;}
+  .gallery-panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:20px;margin-bottom:22px;}
+  .placeholder-warning{background:#fff4e8;border:1px solid #f2c196;color:#814c1a;border-radius:10px;padding:14px;line-height:1.45;margin-top:16px;font-size:13px;}
+  .deadline-panel{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px 20px;min-width:260px;flex:1;}
+  .deadline-panel h4{margin:0 0 12px;font-size:15px;color:var(--navy);}
+  .deadline-panel .note{margin-top:12px;font-size:13px;color:var(--muted);}
+
+  .price-placeholder{color:var(--gold);font-weight:600;font-size:11px;}
+
+  .ref-success{text-align:center;padding:40px 20px;}
+  .ref-success .code{display:inline-block;background:var(--navy);color:#fff;font-family:'Fraunces',serif;font-size:22px;padding:12px 24px;border-radius:8px;margin:16px 0;letter-spacing:.03em;}
+
+  /* FOOTER */
+  footer{background:var(--navy);color:#cfd6e2;padding:52px 0 26px;margin-top:40px;}
+  .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:32px;}
+  @media(max-width:980px){.hero-panel,.admin-controls{flex-direction:column;gap:18px;} .deadline-card{max-width:100%;}} 
+  @media(max-width:720px){.footer-grid{grid-template-columns:1fr;} .room-grid{grid-template-columns:1fr;} .steps{flex-wrap:wrap;gap:12px;} .form-actions{flex-direction:column;align-items:stretch;} .btn{width:100%;justify-content:center;} }
+  footer h4{color:#fff;font-size:13px;margin-bottom:14px;letter-spacing:.03em;}
+  footer p{font-size:13.5px;line-height:1.6;color:#9aa5b8;}
+  footer ul{list-style:none;padding:0;margin:0;}
+  footer li{margin-bottom:9px;font-size:13.5px;}
+  footer a:hover{color:#fff;}
+  .footer-bottom{border-top:1px solid rgba(255,255,255,0.12);padding-top:20px;display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:#8894a8;flex-wrap:wrap;gap:10px;}
+  .admin-link{color:#8894a8;font-weight:600;}
+  .admin-link:hover{color:var(--gold-soft);}
+
+  /* MODAL / ADMIN */
+  .overlay{position:fixed;inset:0;background:rgba(21,34,56,0.55);display:none;align-items:center;justify-content:center;z-index:100;padding:20px;}
+  .overlay.open{display:flex;}
+  .modal{background:#fff;border-radius:14px;padding:32px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+  .modal h3{margin-top:0;}
+  .modal .field{margin-bottom:16px;}
+  .close-x{float:right;cursor:pointer;font-size:20px;color:var(--muted);}
+  .err-msg{color:var(--danger);font-size:13px;margin-top:8px;}
+
+  #adminView{display:none;min-height:100vh;background:var(--paper);}
+  .admin-header{background:var(--navy);color:#fff;padding:18px 0;}
+  .admin-header .wrap{display:flex;justify-content:space-between;align-items:center;}
+  .admin-header .brand{color:#fff;}
+  .logout-btn{background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;padding:8px 16px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;}
+  .admin-body{padding:36px 0;}
+  .admin-stats{display:flex;gap:16px;margin-bottom:28px;flex-wrap:wrap;}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px 24px;flex:1;min-width:140px;}
+  .stat .num{font-size:26px;font-weight:700;font-family:'Fraunces',serif;}
+  .stat .lbl{font-size:12px;color:var(--muted);font-weight:600;}
+  .filter-bar{display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  .filter-bar input,.filter-bar select{width:auto;min-width:200px;}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:13.5px;}
+  thead{background:#f1eee5;}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .badge{padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:700;}
+  .badge.pending{background:#fbe9d7;color:#8a5a1e;}
+  .badge.verified{background:#dcefe0;color:var(--ok);}
+  .badge.rejected{background:#f6dcd7;color:var(--danger);}
+  .row-actions{display:flex;gap:8px;}
+  .row-actions button{border:none;background:none;cursor:pointer;font-size:12px;font-weight:700;padding:4px 8px;border-radius:6px;}
+  .row-actions .approve{color:var(--ok);}
+  .row-actions .reject{color:var(--danger);}
+  .row-actions .view{color:var(--navy);}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<!-- ================= PUBLIC SITE ================= -->
+<div id="publicView">
+
+<header class="site">
+  <nav class="wrap">
+    <div class="brand">
+      <div class="mark">UH</div>
+      <div>
+        <div>university Accomodation portal</div>
+        <span class="sub">Bookings and Accommodation Portal</span>
+      </div>
+    </div>
+    <div class="navlinks">
+      <a href="#gallery">Hostel Gallery</a>
+      <a href="#why">Why Us</a>
+      <a href="#book" class="active">Book Now</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#book" class="btn btn-navy" style="padding:9px 18px;">Book Now</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">SMART & AFFORDABLE STUDENT LIVING</div>
+    <div class="hero-panel">
+      <div class="hero-copy">
+        <h1>Welcome to university Accomodation portal</h1>
+        <p>Apply for on-campus accommodation, track your booking status, and upload your payment proof — all from one place. Allocation is on a first-come, first-served basis, subject to room availability and accommodation policy.</p>
+        <p>Applications are reviewed by our housing office. You'll receive a reference code immediately and a status update once your payment proof has been verified.</p>
+        <div class="hero-cta">
+          <a href="#book" class="btn btn-gold">Book Your Room Now</a>
+          <a href="#gallery" class="btn btn-outline">Explore Hostels</a>
+        </div>
+      </div>
+      <aside class="deadline-card">
+        <span class="eyebrow">Booking Deadline</span>
+        <div class="countdown">
+          <div class="countdown-item"><span id="countDays">0</span><small>DAYS</small></div>
+          <div class="countdown-item"><span id="countHours">0</span><small>HOURS</small></div>
+          <div class="countdown-item"><span id="countSeconds">0</span><small>SECONDS</small></div>
+        </div>
+        <p class="deadline-note">Book early to guarantee your room type selection.</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section id="gallery">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">PROPERTY GALLERY</div>
+      <h2>Explore the Hostel</h2>
+    </div>
+    <div id="galleryGrid" class="gallery-grid">
+      <div class="ph">Corridor photo</div>
+      <div class="ph">Room photo</div>
+      <div class="ph">Room photo</div>
+      <div class="ph">Common area photo</div>
+    </div>
+  </div>
+</section>
+
+<section id="why" style="background:#fff;">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">SMART AMENITIES</div>
+      <h2>Everything You Need to Succeed</h2>
+      <p>Key resources and services included in your rent — edit to match what's actually offered.</p>
+    </div>
+    <div class="amenities-grid">
+      <div class="amenity-card"><div class="icon">📶</div><h3>High-Speed Internet</h3><p>Wi-Fi throughout buildings and study lounges.</p></div>
+      <div class="amenity-card"><div class="icon">🛡️</div><h3>24/7 Security</h3><p>Guarded premises with access control and monitoring.</p></div>
+      <div class="amenity-card"><div class="icon">📚</div><h3>Study Areas</h3><p>Quiet spaces to focus on coursework.</p></div>
+      <div class="amenity-card"><div class="icon">🛋️</div><h3>Common Areas</h3><p>Lounges to relax and meet other residents.</p></div>
+      <div class="amenity-card"><div class="icon">🍽️</div><h3>On-Site Catering</h3><p>Optional meal plans, added at checkout.</p></div>
+      <div class="amenity-card"><div class="icon">⚡</div><h3>Power & Water Backup</h3><p>Backup systems for consistent utilities.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="book">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">BOOKING STEPS</div>
+      <h2>Secure Your Accommodation</h2>
+      <p>Fill out the booking form to reserve your spot.</p>
+    </div>
+
+    <div class="booking-card">
+      <div class="steps" id="stepsBar"></div>
+
+      <!-- STEP 1 -->
+      <div class="form-step" id="stepPanel1">
+        <h3>👤 Step 1: Personal Details</h3>
+        <div class="field"><label>Full Name <span class="req">*</span></label><input id="f_fullname" placeholder="Enter your full name"></div>
+        <div class="grid2">
+          <div class="field"><label>National ID / Passport Number <span class="req">*</span></label><input id="f_idnumber" placeholder="Enter ID number"></div>
+          <div class="field"><label>Gender <span class="req">*</span></label>
+            <select id="f_gender"><option value="">Select Gender</option><option>Female</option><option>Male</option><option>Other</option><option>Prefer not to say</option></select>
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Date of Birth <span class="req">*</span></label><input type="date" id="f_dob"></div>
+          <div class="field"><label>Email Address <span class="req">*</span></label><input type="email" id="f_email" placeholder="example@student.ac.ke"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label>Phone Number <span class="req">*</span></label><input id="f_phone" placeholder="+254 7XX XXX XXX"></div>
+          <div class="field"><label>Course <span class="req">*</span></label><input id="f_course" placeholder="Type your course of study"></div>
+        </div>
+        <div class="field" style="max-width:280px;"><label>Academic Year <span class="req">*</span></label><input id="f_year" value="2026/2027"></div>
+        <div class="form-actions"><span></span><button class="btn btn-navy" onclick="goStep(2)">Next →</button></div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="form-step hidden" id="stepPanel2">
+        <h3>🚑 Step 2: Emergency Contact</h3>
+        <div class="grid2">
+          <div class="field"><label>Contact Full Name <span class="req">*</span></label><input id="f_ec_name" placeholder="Enter contact's full name"></div>
+          <div class="field"><label>Relationship <span class="req">*</span></label><input id="f_ec_rel" placeholder="e.g. Parent, Guardian, Sibling"></div>
+        </div>
+        <div class="field" style="max-width:340px;"><label>Contact Phone Number <span class="req">*</span></label><input id="f_ec_phone" placeholder="+254 7XX XXX XXX"></div>
+        <div class="form-actions"><button class="btn btn-outline" style="border-color:var(--line);color:var(--ink);" onclick="goStep(1)">← Previous</button><button class="btn btn-navy" onclick="goStep(3)">Next →</button></div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="form-step hidden" id="stepPanel3">
+        <h3>🛏️ Step 3: Room Choice</h3>
+        <p style="color:var(--muted);font-size:13.5px;margin-top:-10px;">Choose the room that fits your budget. You can optionally add catering below.</p>
+        <div class="room-grid" id="roomGrid"><!-- populated from Supabase --></div>
+        <div id="addonArea"></div>
+        <div class="form-actions"><button class="btn btn-outline" style="border-color:var(--line);color:var(--ink);" onclick="goStep(2)">← Previous</button><button class="btn btn-navy" onclick="tryGoStep4()">Next →</button></div>
+      </div>
+
+      <!-- STEP 4 -->
+      <div class="form-step hidden" id="stepPanel4">
+        <h3>🧾 Step 4: Payment Proof</h3>
+        <p style="color:var(--muted);font-size:13.5px;margin-top:-10px;">Make payment using the details below, then upload your receipt. Your booking will stay <strong>pending</strong> until an admin verifies it.</p>
+        <div class="payment-card" id="paymentSummary">
+          <div class="summary-row"><span>Student Name</span><strong id="paymentStudentName">—</strong></div>
+          <div class="summary-row"><span>Selected Room</span><strong id="paymentRoomName">—</strong></div>
+          <div class="summary-row"><span>Total Amount Due</span><strong id="paymentTotalDue">KES 0</strong></div>
+        </div>
+        <div class="payment-card payment-instructions">
+          <div class="summary-row"><span>Paybill Number</span><strong>516600</strong></div>
+          <div class="summary-row"><span>Account Number</span><strong>5574673001</strong></div>
+          <div class="summary-row"><span>Amount</span><strong id="paymentTotalDueAlt">KES 0</strong></div>
+          <p style="margin-top:12px;color:var(--muted);font-size:13px;">Use the Paybill number and account number above when making payment. After payment, upload your receipt below.</p>
+        </div>
+        <div class="upload-box" id="uploadBox" onclick="document.getElementById('f_proof').click()">
+          <div id="uploadLabel">📎 Click to upload receipt (image or PDF)</div>
+          <input type="file" id="f_proof" accept="image/*,application/pdf" style="display:none" onchange="onFileChosen(event)">
+        </div>
+        <div class="form-actions"><button class="btn btn-outline" style="border-color:var(--line);color:var(--ink);" onclick="goStep(3)">← Previous</button><button class="btn btn-gold" id="submitBtn" onclick="submitBooking()">Submit Booking</button></div>
+        <div class="err-msg" id="submitErr"></div>
+      </div>
+
+      <!-- SUCCESS -->
+      <div class="form-step hidden" id="stepPanelSuccess">
+        <div class="ref-success">
+          <h3 style="border:none;">✅ Booking Submitted</h3>
+          <p style="color:var(--muted);">Save this reference code — you'll need it to check your status.</p>
+          <div class="code" id="refCodeOut"></div>
+          <p style="color:var(--muted);font-size:13px;">Our housing office will verify your payment proof and update your status shortly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+<!-- ================= END PUBLIC SITE ================= -->
+
+
+<!-- ================= ADMIN LOGIN MODAL ================= -->
+<div class="overlay" id="loginOverlay">
+  <div class="modal">
+    <span class="close-x" onclick="closeLogin()">&times;</span>
+    <h3>Admin Login</h3>
+    <div class="field"><label>Email</label><input type="email" id="admin_email" placeholder="admin@universityhostels.ac.ke"></div>
+    <div class="field"><label>Password</label><input type="password" id="admin_pass" placeholder="••••••••"></div>
+    <button class="btn btn-navy" style="width:100%;justify-content:center;" onclick="doLogin()">Sign In</button>
+    <div class="err-msg" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ================= ADMIN DASHBOARD ================= -->
+<div id="adminView">
+  <div class="admin-header">
+    <div class="wrap">
+      <div class="brand"><div class="mark">CH</div><div>Admin Dashboard</div></div>
+      <button class="logout-btn" onclick="doLogout()">Log Out</button>
+    </div>
+  </div>
+  <div class="admin-body">
+    <div class="wrap">
+      <div class="admin-stats" id="statsBar"></div>
+      <div class="admin-controls">
+        <div class="deadline-panel">
+          <h4>Booking Deadline</h4>
+          <div class="field" style="max-width:280px;">
+            <label>Deadline date</label>
+            <input type="datetime-local" id="deadlineDate">
+          </div>
+          <button class="btn btn-gold" onclick="saveDeadline()">Save Deadline</button>
+          <p class="note" id="deadlineAdminNote">Current deadline will appear here.</p>
+        </div>
+      </div>
+      <div class="gallery-panel">
+        <h4>Gallery Images</h4>
+        <div id="galleryAdminList" class="admin-gallery-grid"></div>
+        <div class="field" style="max-width:320px;"><label>Upload New Gallery Image</label><input type="file" id="galleryUploadFile" accept="image/*"></div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+          <button class="btn btn-gold" onclick="uploadGalleryImage()">Upload Image</button>
+          <button class="btn btn-outline" onclick="loadGalleryImages()" style="border-color:var(--line);color:var(--ink);">Refresh Gallery</button>
+        </div>
+        <p class="note" id="galleryUploadNote">Upload images here to populate the public gallery.</p>
+        <div class="placeholder-warning hidden" id="placeholderReport"></div>
+      </div>
+      <div class="filter-bar">
+        <input id="searchBox" placeholder="Search by name or reference code..." oninput="renderBookings()">
+        <select id="statusFilter" onchange="renderBookings()">
+          <option value="">All statuses</option>
+          <option value="pending">Pending</option>
+          <option value="verified">Verified</option>
+          <option value="rejected">Rejected</option>
+        </select>
+        <button class="btn btn-navy" onclick="loadBookings()">Refresh</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Reference</th><th>Name</th><th>Room</th><th>Contact</th><th>Status</th><th>Submitted</th><th>Proof</th><th>Actions</th></tr></thead>
+          <tbody id="bookingsBody"><tr><td colspan="8" style="text-align:center;color:var(--muted);">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <h4>university Accomodation portal</h4>
+        <p>university Accomodation portal for student accommodation. Apply, choose your room, and upload payment proof securely.</p>
+      </div>
+      <div>
+        <h4>QUICK LINKS</h4>
+        <ul><li><a href="#gallery">Hostel Gallery</a></li><li><a href="#why">Why Us</a></li><li><a href="#book">Book Now</a></li></ul>
+      </div>
+      <div>
+        <h4>CONTACT</h4>
+        <ul>
+          <li>📍 University</li>
+          <li>✉️ info@universityhostels.ac.ke</li>
+          <li>📞 254732779354</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 University. All rights reserved.</span>
+      <a href="#" class="admin-link" onclick="openLogin();return false;">Admin Login</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* =========================================================
+   SUPABASE CONFIG — replace with your own project's values
+   ========================================================= */
+const SUPABASE_URL = "https://yzltsctfhttltdvshgqs.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6bHRzY3RmaHR0bHRkdnNoZ3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwMTQwODQsImV4cCI6MjA5OTU5MDA4NH0.79hJ0UvuNS0jhl90tWRzuzasOiCgMEEQP4XIX2vdlDQ";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const defaultRoomTypes = [
+  { id: 'quad', name: 'Standard Quad Room', capacity_label: 'Shared by 4 Students', price: 10500, features: ['Bed & Mattress', 'Chair', 'Water & Electricity', 'Study Desk', 'Lockable Wardrobe', 'Unlimited Wi-Fi'] },
+  { id: 'triple', name: 'Standard Triple Room', capacity_label: 'Shared by 3 Students', price: 15500, features: ['Bed & Mattress', 'Chair', 'Water & Electricity', 'Study Desk', 'Lockable Wardrobe', 'Unlimited Wi-Fi'] },
+  { id: 'double', name: 'Standard Double Room', capacity_label: 'Shared by 2 Students', price: 20500, features: ['Bed & Mattress', 'Chair', 'Water & Electricity', 'Study Desk', 'Lockable Wardrobe', 'Unlimited Wi-Fi'] },
+  { id: 'single', name: 'Single Room', capacity_label: 'Private Room', price: 24000, features: ['Bed & Mattress', 'Chair', 'Water & Electricity', 'Study Desk', 'Lockable Wardrobe', 'Unlimited Wi-Fi'] },
+];
+const defaultAddons = [
+  { id: 'catering', name: 'Optional Catering Services', description: 'Students may choose university catering services for one semester. This is optional and will only be charged if selected.', price: 7000 },
+];
+
+let roomTypes = [];
+let addons = [];
+let selectedRoomId = null;
+let selectedAddonId = null;
+let addonChecked = false;
+let uploadedFile = null;
+let currentStep = 1;
+
+const stepLabels = ["Personal Details","Emergency Contact","Room Choice","Payment Proof"];
+
+function renderStepsBar(){
+  const bar = document.getElementById('stepsBar');
+  bar.innerHTML = stepLabels.map((label,i)=>{
+    const n = i+1;
+    let cls = 'step';
+    if(n < currentStep) cls += ' done';
+    if(n === currentStep) cls += ' active';
+    return `<div class="${cls}"><div class="dot">${n < currentStep ? '✓' : n}</div><span class="label">${label}</span></div>`;
+  }).join('');
+}
+
+function goStep(n){
+  document.querySelectorAll('.form-step').forEach(el=>el.classList.add('hidden'));
+  document.getElementById('stepPanel'+n).classList.remove('hidden');
+  currentStep = n;
+  renderStepsBar();
+  document.getElementById('book').scrollIntoView({behavior:'smooth'});
+}
+
+function tryGoStep4(){
+  if(!selectedRoomId){ alert('Please select a room type to continue.'); return; }
+  renderPaymentSummary();
+  goStep(4);
+}
+
+function getSelectedRoom(){
+  return roomTypes.find(r=>r.id === selectedRoomId) || null;
+}
+
+function calculatePaymentTotal(){
+  const room = getSelectedRoom();
+  let total = room ? Number(room.price || 0) : 0;
+  if(addonChecked){
+    const addon = addons.find(a=>a.id === selectedAddonId);
+    total += addon ? Number(addon.price || 0) : 0;
+  }
+  return total;
+}
+
+function renderPaymentSummary(){
+  const room = getSelectedRoom();
+  const student = document.getElementById('f_fullname')?.value.trim() || 'Student';
+  const total = calculatePaymentTotal();
+  document.getElementById('paymentStudentName').textContent = student || 'Student';
+  document.getElementById('paymentRoomName').textContent = room ? room.name : '—';
+  document.getElementById('paymentTotalDue').textContent = 'KES '+Number(total).toLocaleString();
+  document.getElementById('paymentTotalDueAlt').textContent = 'KES '+Number(total).toLocaleString();
+}
+
+/* ---------- Load room types & addons from Supabase ---------- */
+async function loadRoomOptions(){
+  const { data: rooms, error: rErr } = await sb.from('room_types').select('*').eq('is_active', true).order('sort_order');
+  const { data: ad, error: aErr } = await sb.from('addons').select('*').eq('is_active', true);
+  if(rErr) console.warn('Supabase room load error:', rErr);
+  if(aErr) console.warn('Supabase addon load error:', aErr);
+
+  // Hard-code overrides for prices regardless of what the database sends
+  if(rooms && rooms.length){
+    roomTypes = rooms.map(r => {
+      const nameLower = (r.name || '').toLowerCase();
+      const capLower = (r.capacity_label || '').toLowerCase();
+      let forcedPrice = 0;
+
+      if (nameLower.includes('single') || capLower.includes('private') || capLower.includes('1')) {
+        forcedPrice = 24000;
+      } else if (nameLower.includes('double') || capLower.includes('2')) {
+        forcedPrice = 20500;
+      } else if (nameLower.includes('triple') || capLower.includes('3')) {
+        forcedPrice = 15500;
+      } else if (nameLower.includes('quad') || capLower.includes('4')) {
+        forcedPrice = 10500;
+      }
+
+      const dbPrice = Number(r.price);
+      // Prioritize the forced prices 
+      const finalPrice = forcedPrice > 0 ? forcedPrice : ((Number.isFinite(dbPrice) && dbPrice > 0) ? dbPrice : 0);
+
+      return {
+        ...r,
+        price: finalPrice,
+        features: r.features && r.features.length ? r.features : ['Bed & Mattress', 'Chair', 'Water & Electricity', 'Study Desk', 'Lockable Wardrobe', 'Unlimited Wi-Fi']
+      };
+    });
+  } else {
+    roomTypes = defaultRoomTypes;
+  }
+
+  if(ad && ad.length){
+    addons = ad.map(a => {
+      const nameLower = (a.name || '').toLowerCase();
+      let forcedPrice = 0;
+      if (nameLower.includes('cater') || nameLower.includes('meal')) {
+        forcedPrice = 7000;
+      }
+      const dbPrice = Number(a.price);
+      return {
+        ...a,
+        price: forcedPrice > 0 ? forcedPrice : ((Number.isFinite(dbPrice) && dbPrice > 0) ? dbPrice : 0)
+      };
+    });
+  } else {
+    addons = defaultAddons;
+  }
+
+  document.getElementById('roomGrid').innerHTML = roomTypes.map(r => `
+    <div class="room-card" id="room_${r.id}" onclick="selectRoom('${r.id}')">
+      <div class="rname">${r.name}</div>
+      <div class="rcap">${r.capacity_label || ''}</div>
+      <div class="rprice">${r.price > 0 ? 'KES '+Number(r.price).toLocaleString() : '<span class="price-placeholder">PRICE TBD</span>'}<span class="per">PER YEAR</span></div>
+      <ul>${(r.features||[]).map(f=>`<li>${f}</li>`).join('')}</ul>
+      <button type="button" class="room-select-btn">Select Room</button>
+    </div>
+  `).join('');
+
+  if(addons.length){
+    document.getElementById('addonArea').innerHTML = addons.map(a => `
+      <div class="addon-box">
+        <label><input type="checkbox" onchange="toggleAddon('${a.id}', this.checked)"> ${a.name}<br><span style="font-weight:400;color:var(--muted);font-size:12.5px;">${a.description||''}</span></label>
+        <div class="rprice" style="font-size:16px;">${a.price > 0 ? 'KES '+Number(a.price).toLocaleString() : '<span class="price-placeholder">TBD</span>'}<span class="per">PER SEMESTER</span></div>
+      </div>
+      <div class="note">ℹ️ If you choose this, it will apply for the whole registered period.</div>
+    `).join('');
+  }
+}
+
+function selectRoom(id){
+  selectedRoomId = id;
+  document.querySelectorAll('.room-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('room_'+id).classList.add('selected');
+}
+function toggleAddon(id, checked){
+  addonChecked = checked;
+  selectedAddonId = checked ? id : null;
+}
+
+function onFileChosen(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  uploadedFile = file;
+  document.getElementById('uploadBox').classList.add('has-file');
+  document.getElementById('uploadLabel').textContent = '✅ ' + file.name;
+}
+
+function genReference(){
+  const rand = Math.floor(100000 + Math.random()*900000);
+  return `BK-${new Date().getFullYear()}-${rand}`;
+}
+
+async function submitBooking(){
+  const errEl = document.getElementById('submitErr');
+  errEl.textContent = '';
+
+  const required = {
+    'Full Name': document.getElementById('f_fullname').value.trim(),
+    'ID Number': document.getElementById('f_idnumber').value.trim(),
+    'Email': document.getElementById('f_email').value.trim(),
+    'Phone': document.getElementById('f_phone').value.trim(),
+  };
+  for(const [k,v] of Object.entries(required)){
+    if(!v){ errEl.textContent = `Please fill in: ${k}`; return; }
+  }
+  if(!selectedRoomId){ errEl.textContent = 'Please go back and select a room type.'; return; }
+  if(!uploadedFile){ errEl.textContent = 'Please upload your payment proof.'; return; }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  try{
+    const reference = genReference();
+    const filePath = `${reference}/${uploadedFile.name}`;
+    const { error: upErr } = await sb.storage.from('payment-proofs').upload(filePath, uploadedFile);
+    if(upErr) throw upErr;
+
+    const payload = {
+      reference_code: reference,
+      full_name: document.getElementById('f_fullname').value.trim(),
+      id_number: document.getElementById('f_idnumber').value.trim(),
+      gender: document.getElementById('f_gender').value,
+      date_of_birth: document.getElementById('f_dob').value || null,
+      email: document.getElementById('f_email').value.trim(),
+      phone: document.getElementById('f_phone').value.trim(),
+      course: document.getElementById('f_course').value.trim(),
+      academic_year: document.getElementById('f_year').value.trim(),
+      emergency_name: document.getElementById('f_ec_name').value.trim(),
+      emergency_relationship: document.getElementById('f_ec_rel').value.trim(),
+      emergency_phone: document.getElementById('f_ec_phone').value.trim(),
+      room_type_id: selectedRoomId,
+      addon_selected: addonChecked,
+      payment_proof_path: filePath,
+      payment_status: 'pending'
+    };
+    const { error: insErr } = await sb.from('bookings').insert(payload);
+    if(insErr) throw insErr;
+
+    document.getElementById('refCodeOut').textContent = reference;
+    document.querySelectorAll('.form-step').forEach(el=>el.classList.add('hidden'));
+    document.getElementById('stepPanelSuccess').classList.remove('hidden');
+  }catch(err){
+    console.error(err);
+    errEl.textContent = 'Something went wrong: ' + (err.message || 'please try again.');
+  }finally{
+    btn.disabled = false; btn.textContent = 'Submit Booking';
+  }
+}
+
+/* ---------- Admin ---------- */
+function openLogin(){ document.getElementById('loginOverlay').classList.add('open'); }
+function closeLogin(){ document.getElementById('loginOverlay').classList.remove('open'); }
+
+async function doLogin(){
+  const email = document.getElementById('admin_email').value.trim();
+  const password = document.getElementById('admin_pass').value;
+  const errEl = document.getElementById('loginErr');
+  errEl.textContent = '';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if(error){ errEl.textContent = error.message; return; }
+  closeLogin();
+  showAdmin();
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  document.getElementById('adminView').style.display = 'none';
+  document.getElementById('publicView').style.display = 'block';
+}
+
+function showAdmin(){
+  document.getElementById('publicView').style.display = 'none';
+  document.getElementById('adminView').style.display = 'block';
+  loadBookings();
+  loadGalleryImages();
+}
+
+let allBookings = [];
+let galleryImages = [];
+
+function saveGalleryCache(paths){
+  try{ localStorage.setItem('hostelGalleryCache', JSON.stringify(paths || [])); } catch(e){}
+}
+
+function loadGalleryCache(){
+  try{ return JSON.parse(localStorage.getItem('hostelGalleryCache') || '[]') || []; } catch(e){ return []; }
+}
+
+async function loadGalleryImages(){
+  const bucket = 'payment-proofs';
+  const table = 'gallery_images';
+  const gallery = [];
+
+  try{
+    const { data: records, error } = await sb.from(table).select('id,file_path,uploaded_at').order('uploaded_at', { ascending: false });
+    if(error){
+      throw error;
+    }
+
+    for(const record of records || []){
+            if(!record?.file_path) continue;
+      const { data: urlData, error: urlErr } = sb.storage.from(bucket).getPublicUrl(record.file_path);
+      if(urlErr){
+        console.warn('Public URL failed for', record.file_path, urlErr.message || urlErr);
+        continue;
+      }
+      gallery.push({ name: record.file_path.split('/').pop(), url: urlData.publicUrl });
+    }
+
+    galleryImages = gallery;
+  }catch(dbError){
+    console.warn('Gallery load failed:', dbError.message || dbError);
+    galleryImages = [];
+
+    const folder = 'gallery';
+    try{
+      let result = await sb.storage.from(bucket).list(folder, { limit: 100, offset: 0, sortBy: { column: 'name', order: 'asc' } });
+      if(result.error || !result.data?.length){
+        const altResult = await sb.storage.from(bucket).list(`${folder}/`, { limit: 100, offset: 0, sortBy: { column: 'name', order: 'asc' } });
+        if(!altResult.error && altResult.data?.length){
+          result = altResult;
+        }
+      }
+      if(result.error){ throw result.error; }
+
+      for(const item of result.data || []){
+        if(!item.name) continue;
+        const itemPath = item.name.includes('/') ? item.name : `${folder}/${item.name}`;
+        const { data: urlData, error: urlErr } = sb.storage.from(bucket).getPublicUrl(itemPath);
+        if(urlErr){
+          console.warn('Public URL failed for', itemPath, urlErr.message || urlErr);
+          continue;
+        }
+        gallery.push({ name: itemPath.split('/').pop(), url: urlData.publicUrl });
+      }
+      galleryImages = gallery;
+    }catch(storageError){
+      console.warn('Storage fallback failed:', storageError.message || storageError);
+      galleryImages = [];
+    }
+  }
+
+  renderGalleryImages();
+  renderGalleryAdminList();
+}
+
+async function uploadGalleryImage(){
+  const el = document.getElementById('galleryUploadFile');
+  const file = el?.files?.[0];
+  const note = document.getElementById('galleryUploadNote');
+  if(!file){ note.textContent = 'Please choose an image to upload.'; return; }
+  note.textContent = 'Uploading…';
+
+  const bucket = 'payment-proofs';
+  const folder = 'gallery';
+  const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9_.-]/g,'_')}`;
+  const filePath = `${folder}/${fileName}`;
+
+  const { error: uploadErr } = await sb.storage.from(bucket).upload(filePath, file);
+  if(uploadErr){ note.textContent = 'Upload failed: ' + uploadErr.message; return; }
+
+  const { data: insertData, error: insertErr } = await sb.from('gallery_images').insert({ file_path: filePath, uploaded_at: new Date().toISOString() });
+  if(insertErr){
+    console.warn('Gallery metadata insert failed:', insertErr);
+    const errMessage = insertErr.message || JSON.stringify(insertErr);
+    note.textContent = 'Upload succeeded but gallery metadata insert failed: ' + errMessage;
+    await loadGalleryImages();
+    el.value = '';
+    return;
+  }
+
+  const { data: urlData, error: urlErr } = sb.storage.from(bucket).getPublicUrl(filePath);
+  const imageUrl = !urlErr ? urlData.publicUrl : null;
+  if(imageUrl){
+    galleryImages.unshift({ name: fileName, url: imageUrl });
+    renderGalleryImages();
+    renderGalleryAdminList();
+  }
+
+  note.textContent = 'Image uploaded successfully.';
+  el.value = '';
+}
+
+function renderGalleryImages(){
+  const grid = document.getElementById('galleryGrid');
+  if(!grid) return;
+  if(!galleryImages.length){
+    grid.innerHTML = `
+      <div class="ph">Corridor photo</div>
+      <div class="ph">Room photo</div>
+      <div class="ph">Room photo</div>
+      <div class="ph">Common area photo</div>
+    `;
+    return;
+  }
+  grid.innerHTML = galleryImages.map(img => `
+    <div class="ph"><img src="${img.url}" alt="Hostel photo"></div>
+  `).join('');
+}
+
+function renderGalleryAdminList(){
+  const list = document.getElementById('galleryAdminList');
+  if(!list) return;
+  if(!galleryImages.length){
+    list.innerHTML = '<div class="admin-gallery-card"><div class="meta">No gallery images uploaded yet.</div></div>';
+    return;
+  }
+  list.innerHTML = galleryImages.map(img => `
+    <div class="admin-gallery-card"><img src="${img.url}" alt="Gallery image"><div class="meta">${img.name}</div></div>
+  `).join('');
+}
+
+function checkPlaceholders(){
+  const placeholders = [];
+  const textRegex = /(replace the placeholders? below|replace the placeholders|placeholder\.edu|placeholder booking platform)/i;
+  const skipTags = ['SCRIPT','STYLE','NOSCRIPT'];
+  document.querySelectorAll('body *').forEach(el => {
+    if(skipTags.includes(el.tagName)) return;
+    if(el.children.length === 0 && el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA'){
+      const text = (el.textContent || '').trim();
+      if(textRegex.test(text) && text.length > 0){
+        placeholders.push(text);
+      }
+    }
+    Array.from(el.attributes || []).forEach(attr => {
+      if(/alt|title/.test(attr.name) && textRegex.test(attr.value)){
+        placeholders.push(`${attr.name}: ${attr.value}`);
+      }
+    });
+  });
+  const report = document.getElementById('placeholderReport');
+  if(report){
+    if(placeholders.length){
+      report.classList.remove('hidden');
+      report.innerHTML = `<strong>Placeholders found:</strong><br>${[...new Set(placeholders)].slice(0,6).map(item=>`<div>${item}</div>`).join('')}`;
+    } else {
+      report.classList.add('hidden');
+    }
+  }
+  console.warn('Placeholder report:', placeholders);
+}
+
+async function loadBookings(){
+  const { data, error } = await sb.from('bookings').select('*, room_types(name)').order('created_at', { ascending:false });
+  if(error){ console.error(error); document.getElementById('bookingsBody').innerHTML = `<tr><td colspan="8">Error loading bookings: ${error.message}</td></tr>`; return; }
+  allBookings = data || [];
+  renderStats();
+  renderBookings();
+}
+
+function renderStats(){
+  const total = allBookings.length;
+  const pending = allBookings.filter(b=>b.payment_status==='pending').length;
+  const verified = allBookings.filter(b=>b.payment_status==='verified').length;
+  const rejected = allBookings.filter(b=>b.payment_status==='rejected').length;
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat"><div class="num">${total}</div><div class="lbl">TOTAL BOOKINGS</div></div>
+    <div class="stat"><div class="num">${pending}</div><div class="lbl">PENDING</div></div>
+    <div class="stat"><div class="num">${verified}</div><div class="lbl">VERIFIED / PAID</div></div>
+    <div class="stat"><div class="num">${rejected}</div><div class="lbl">REJECTED</div></div>
+  `;
+}
+
+async function getProofUrl(path){
+  const { data, error } = await sb.storage.from('payment-proofs').createSignedUrl(path, 300);
+  if(error){ alert('Could not load proof: '+error.message); return; }
+  window.open(data.signedUrl, '_blank');
+}
+
+function renderBookings(){
+  const q = document.getElementById('searchBox').value.toLowerCase();
+  const statusF = document.getElementById('statusFilter').value;
+  let rows = allBookings.filter(b=>{
+    const matchesQ = !q || b.full_name.toLowerCase().includes(q) || b.reference_code.toLowerCase().includes(q);
+    const matchesS = !statusF || b.payment_status === statusF;
+    return matchesQ && matchesS;
+  });
+  if(!rows.length){
+    document.getElementById('bookingsBody').innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);">No bookings found.</td></tr>';
+    return;
+  }
+  document.getElementById('bookingsBody').innerHTML = rows.map(b=>`
+    <tr>
+      <td><strong>${b.reference_code}</strong></td>
+      <td>${b.full_name}</td>
+      <td>${b.room_types ? b.room_types.name : '—'}</td>
+      <td>${b.email}<br><span style="color:var(--muted);">${b.phone}</span></td>
+      <td><span class="badge ${b.payment_status}">${b.payment_status}</span></td>
+      <td>${new Date(b.created_at).toLocaleDateString()}</td>
+      <td>${b.payment_proof_path ? `<button class="view" onclick="getProofUrl('${b.payment_proof_path}')" style="border:none;background:none;color:var(--navy);font-weight:700;cursor:pointer;">View</button>` : '—'}</td>
+      <td>
+        <div class="row-actions">
+          <button class="approve" onclick="updateStatus('${b.id}','verified')">Approve</button>
+          <button class="reject" onclick="updateStatus('${b.id}','rejected')">Reject</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function updateStatus(id, status){
+  const { error } = await sb.from('bookings').update({ payment_status: status, verified_at: new Date().toISOString() }).eq('id', id);
+  if(error){ alert('Update failed: '+error.message); return; }
+  loadBookings();
+}
+
+/* ---------- Init ---------- */
+let bookingDeadline = null;
+
+function loadDeadline(){
+  const saved = localStorage.getItem('bookingDeadline');
+  if(saved){
+    const parsed = new Date(saved);
+    if(!Number.isNaN(parsed.valueOf()) && parsed > new Date()){
+      bookingDeadline = parsed;
+    }
+  }
+  if(!bookingDeadline){
+    bookingDeadline = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000 + 21 * 1000);
+  }
+  const input = document.getElementById('deadlineDate');
+  if(input){ input.value = bookingDeadline.toISOString().slice(0,16); }
+  const note = document.getElementById('deadlineAdminNote');
+  if(note){ note.textContent = `Current deadline: ${bookingDeadline.toLocaleString()}`; }
+}
+
+function saveDeadline(){
+  const value = document.getElementById('deadlineDate')?.value;
+  const nextDate = value ? new Date(value) : null;
+  if(!nextDate || Number.isNaN(nextDate.valueOf())){ alert('Please choose a valid date and time.'); return; }
+  if(nextDate <= new Date()){ alert('Please choose a future deadline.'); return; }
+  bookingDeadline = nextDate;
+  localStorage.setItem('bookingDeadline', bookingDeadline.toISOString());
+  document.getElementById('deadlineAdminNote').textContent = `Current deadline: ${bookingDeadline.toLocaleString()}`;
+  updateCountdown();
+  alert('Booking deadline updated.');
+}
+
+function updateCountdown(){
+  const now = new Date();
+  let remaining = Math.max(0, Math.floor((bookingDeadline - now) / 1000));
+  const days = Math.floor(remaining / 86400);
+  remaining %= 86400;
+  const hours = Math.floor(remaining / 3600);
+  const seconds = remaining % 60;
+  document.getElementById('countDays').textContent = days;
+  document.getElementById('countHours').textContent = String(hours).padStart(2,'0');
+  document.getElementById('countSeconds').textContent = String(seconds).padStart(2,'0');
+}
+
+async function init(){
+  renderStepsBar();
+  await loadRoomOptions();
+  await loadGalleryImages();
+  loadDeadline();
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+  checkPlaceholders();
+  const { data: { session } } = await sb.auth.getSession();
+  if(session) showAdmin();
+}
+
+init();
+</script>
+</body>
+</html>
