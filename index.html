@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>university Accomodation portal</title>
+<title>University Hostel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -33,8 +33,9 @@
   header.site{position:sticky;top:0;z-index:40;background:rgba(246,244,239,0.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);}
   nav{display:flex;align-items:center;justify-content:space-between;padding:16px 0;}
   .brand{display:flex;align-items:center;gap:10px;font-weight:700;}
-  .brand .mark{width:34px;height:34px;border-radius:8px;background:var(--navy);color:var(--gold-soft);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;}
-  .brand .sub{display:block;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.04em;}
+  .brand .mark{width:34px;min-width:34px;height:34px;border-radius:8px;background:var(--navy);color:var(--gold-soft);display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;flex-shrink:0;}
+  .brand-title{font-size:15px;font-weight:700;text-transform:uppercase;line-height:1.1;color:var(--navy);font-family:'Inter',system-ui,sans-serif;}
+  .brand .sub{display:block;font-size:8.5px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:3px;}
   .navlinks{display:flex;gap:28px;font-size:14px;font-weight:600;}
   .navlinks a{color:var(--ink);opacity:.75;padding:4px 0;border-bottom:2px solid transparent;}
   .navlinks a:hover,.navlinks a.active{opacity:1;border-color:var(--gold);}
@@ -49,7 +50,7 @@
   .hero-copy{flex:1;min-width:280px;}
   .deadline-card{width:100%;max-width:360px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:22px;padding:24px;}
   .deadline-card .eyebrow{display:block;margin-bottom:16px;color:var(--gold-soft);font-size:12px;letter-spacing:.11em;font-weight:700;text-transform:uppercase;background:none;border:none;}
-  .countdown{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
   .countdown-item{background:rgba(255,255,255,0.12);border-radius:16px;padding:18px 12px;text-align:center;}
   .countdown-item span{display:block;font-size:32px;font-weight:700;line-height:1;}
   .countdown-item small{display:block;margin-top:8px;font-size:11px;font-weight:700;letter-spacing:.16em;color:#e6ecf6;}
@@ -212,10 +213,12 @@
 <header class="site">
   <nav class="wrap">
     <div class="brand">
-      <div class="mark">UH</div>
+      <div class="mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      </div>
       <div>
-        <div>university Accomodation portal</div>
-        <span class="sub">Bookings and Accommodation Portal</span>
+        <div class="brand-title">UNIVERSITY HOSTEL</div>
+        <span class="sub">BOOKING & ACCOMMODATION PORTAL</span>
       </div>
     </div>
     <div class="navlinks">
@@ -246,7 +249,8 @@
         <div class="countdown">
           <div class="countdown-item"><span id="countDays">0</span><small>DAYS</small></div>
           <div class="countdown-item"><span id="countHours">0</span><small>HOURS</small></div>
-          <div class="countdown-item"><span id="countSeconds">0</span><small>SECONDS</small></div>
+          <div class="countdown-item"><span id="countMinutes">0</span><small>MINS</small></div>
+          <div class="countdown-item"><span id="countSeconds">0</span><small>SECS</small></div>
         </div>
         <p class="deadline-note">Book early to guarantee your room type selection.</p>
       </aside>
@@ -317,7 +321,8 @@
           <div class="field"><label>Course <span class="req">*</span></label><input id="f_course" placeholder="Type your course of study"></div>
         </div>
         <div class="field" style="max-width:280px;"><label>Academic Year <span class="req">*</span></label><input id="f_year" value="2026/2027"></div>
-        <div class="form-actions"><span></span><button class="btn btn-navy" onclick="goStep(2)">Next →</button></div>
+        <div class="err-msg" id="step1Err" style="margin-bottom:12px; font-size:13.5px; font-weight:600;"></div>
+        <div class="form-actions"><span></span><button class="btn btn-navy" onclick="tryGoStep2()">Next →</button></div>
       </div>
 
       <!-- STEP 2 -->
@@ -328,7 +333,8 @@
           <div class="field"><label>Relationship <span class="req">*</span></label><input id="f_ec_rel" placeholder="e.g. Parent, Guardian, Sibling"></div>
         </div>
         <div class="field" style="max-width:340px;"><label>Contact Phone Number <span class="req">*</span></label><input id="f_ec_phone" placeholder="+254 7XX XXX XXX"></div>
-        <div class="form-actions"><button class="btn btn-outline" style="border-color:var(--line);color:var(--ink);" onclick="goStep(1)">← Previous</button><button class="btn btn-navy" onclick="goStep(3)">Next →</button></div>
+        <div class="err-msg" id="step2Err" style="margin-bottom:12px; font-size:13.5px; font-weight:600;"></div>
+        <div class="form-actions"><button class="btn btn-outline" style="border-color:var(--line);color:var(--ink);" onclick="goStep(1)">← Previous</button><button class="btn btn-navy" onclick="tryGoStep3()">Next →</button></div>
       </div>
 
       <!-- STEP 3 -->
@@ -354,6 +360,10 @@
           <div class="summary-row"><span>Account Number</span><strong>5574673001</strong></div>
           <div class="summary-row"><span>Amount</span><strong id="paymentTotalDueAlt">KES 0</strong></div>
           <p style="margin-top:12px;color:var(--muted);font-size:13px;">Use the Paybill number and account number above when making payment. After payment, upload your receipt below.</p>
+        </div>
+        <div class="field">
+          <label>Confirmation Code <span class="req">*</span></label>
+          <input id="f_mpesa_code" placeholder="" style="text-transform: uppercase;">
         </div>
         <div class="upload-box" id="uploadBox" onclick="document.getElementById('f_proof').click()">
           <div id="uploadLabel">📎 Click to upload receipt (image or PDF)</div>
@@ -519,6 +529,74 @@ function goStep(n){
   document.getElementById('book').scrollIntoView({behavior:'smooth'});
 }
 
+/* ---------- Form Validation Handlers ---------- */
+
+function validateKenyanPhone(phoneStr) {
+  // Returns true if phone matches standard 10, 12, or 13 length requirements based on prefix
+  if (phoneStr.startsWith('+254') && phoneStr.length === 13) return true;
+  if (phoneStr.startsWith('254') && phoneStr.length === 12) return true;
+  if (phoneStr.startsWith('254') && phoneStr.length === 13) return true; // Accommodate loose matching if users assume '+' logic
+  if ((phoneStr.startsWith('07') || phoneStr.startsWith('01')) && phoneStr.length === 10) return true;
+  return false;
+}
+
+function tryGoStep2() {
+  const errEl = document.getElementById('step1Err');
+  errEl.textContent = '';
+  
+  const fname = document.getElementById('f_fullname').value.trim();
+  const idNum = document.getElementById('f_idnumber').value.trim();
+  const gender = document.getElementById('f_gender').value;
+  const dob = document.getElementById('f_dob').value;
+  const email = document.getElementById('f_email').value.trim();
+  const phone = document.getElementById('f_phone').value.trim().replace(/\s+/g, '');
+  const course = document.getElementById('f_course').value.trim();
+  const year = document.getElementById('f_year').value.trim();
+
+  // Check required fields
+  if(!fname || !idNum || !gender || !dob || !email || !phone || !course || !year) {
+    errEl.textContent = 'Please fill in all required fields to continue.';
+    return;
+  }
+
+  // ID Validation (Digits only)
+  if(!/^\d+$/.test(idNum)) {
+    errEl.textContent = 'ID Number must contain only digits (no letters or spaces).';
+    return;
+  }
+
+  // Phone Validation
+  if(!validateKenyanPhone(phone)) {
+    errEl.textContent = 'Please enter a valid phone number (10 digits starting with 07/01, or 13 starting with 254/+254).';
+    return;
+  }
+
+  // If all is well, proceed
+  goStep(2);
+}
+
+function tryGoStep3() {
+  const errEl = document.getElementById('step2Err');
+  errEl.textContent = '';
+
+  const ecName = document.getElementById('f_ec_name').value.trim();
+  const ecRel = document.getElementById('f_ec_rel').value.trim();
+  const ecPhone = document.getElementById('f_ec_phone').value.trim().replace(/\s+/g, '');
+
+  if(!ecName || !ecRel || !ecPhone) {
+    errEl.textContent = 'Please fill in all required emergency contact fields.';
+    return;
+  }
+
+  // Emergency Phone Validation
+  if(!validateKenyanPhone(ecPhone)) {
+    errEl.textContent = 'Please enter a valid emergency phone number (10 digits starting with 07/01, or 13 starting with 254/+254).';
+    return;
+  }
+
+  goStep(3);
+}
+
 function tryGoStep4(){
   if(!selectedRoomId){ alert('Please select a room type to continue.'); return; }
   renderPaymentSummary();
@@ -652,16 +730,21 @@ async function submitBooking(){
   const errEl = document.getElementById('submitErr');
   errEl.textContent = '';
 
-  const required = {
-    'Full Name': document.getElementById('f_fullname').value.trim(),
-    'ID Number': document.getElementById('f_idnumber').value.trim(),
-    'Email': document.getElementById('f_email').value.trim(),
-    'Phone': document.getElementById('f_phone').value.trim(),
-  };
-  for(const [k,v] of Object.entries(required)){
-    if(!v){ errEl.textContent = `Please fill in: ${k}`; return; }
-  }
+  // Prevent submission if Step 3 was bypassed
   if(!selectedRoomId){ errEl.textContent = 'Please go back and select a room type.'; return; }
+
+  // Strict Confirmation Code Validation
+  const mpesaCode = document.getElementById('f_mpesa_code').value.trim().toUpperCase();
+  if (!mpesaCode) {
+    errEl.textContent = 'Please enter your Confirmation Code.';
+    return;
+  }
+  if (!mpesaCode.startsWith('U') && !mpesaCode.startsWith('V')) {
+    errEl.textContent = 'Enter a valid code';
+    return;
+  }
+
+  // Prevent submission if no file uploaded
   if(!uploadedFile){ errEl.textContent = 'Please upload your payment proof.'; return; }
 
   const btn = document.getElementById('submitBtn');
@@ -680,15 +763,16 @@ async function submitBooking(){
       gender: document.getElementById('f_gender').value,
       date_of_birth: document.getElementById('f_dob').value || null,
       email: document.getElementById('f_email').value.trim(),
-      phone: document.getElementById('f_phone').value.trim(),
+      phone: document.getElementById('f_phone').value.trim().replace(/\s+/g, ''),
       course: document.getElementById('f_course').value.trim(),
       academic_year: document.getElementById('f_year').value.trim(),
       emergency_name: document.getElementById('f_ec_name').value.trim(),
       emergency_relationship: document.getElementById('f_ec_rel').value.trim(),
-      emergency_phone: document.getElementById('f_ec_phone').value.trim(),
+      emergency_phone: document.getElementById('f_ec_phone').value.trim().replace(/\s+/g, ''),
       room_type_id: selectedRoomId,
       addon_selected: addonChecked,
       payment_proof_path: filePath,
+      transaction_code: mpesaCode,
       payment_status: 'pending'
     };
     const { error: insErr } = await sb.from('bookings').insert(payload);
@@ -965,44 +1049,68 @@ async function updateStatus(id, status){
 /* ---------- Init ---------- */
 let bookingDeadline = null;
 
-function loadDeadline(){
-  const saved = localStorage.getItem('bookingDeadline');
-  if(saved){
-    const parsed = new Date(saved);
-    if(!Number.isNaN(parsed.valueOf()) && parsed > new Date()){
-      bookingDeadline = parsed;
-    }
+async function loadDeadline(){
+  const { data, error } = await sb.from('settings').select('value').eq('key', 'booking_deadline').single();
+  
+  if (data && data.value) {
+    bookingDeadline = new Date(data.value);
+  } else {
+    bookingDeadline = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
   }
-  if(!bookingDeadline){
-    bookingDeadline = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 3 * 60 * 60 * 1000 + 21 * 1000);
-  }
+
   const input = document.getElementById('deadlineDate');
-  if(input){ input.value = bookingDeadline.toISOString().slice(0,16); }
+  if(input && bookingDeadline){ 
+    const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(bookingDeadline - tzoffset)).toISOString().slice(0,16);
+    input.value = localISOTime; 
+  }
+  
   const note = document.getElementById('deadlineAdminNote');
-  if(note){ note.textContent = `Current deadline: ${bookingDeadline.toLocaleString()}`; }
+  if(note){ note.textContent = `Current global deadline: ${bookingDeadline.toLocaleString()}`; }
 }
 
-function saveDeadline(){
+async function saveDeadline(){
   const value = document.getElementById('deadlineDate')?.value;
   const nextDate = value ? new Date(value) : null;
+  
   if(!nextDate || Number.isNaN(nextDate.valueOf())){ alert('Please choose a valid date and time.'); return; }
   if(nextDate <= new Date()){ alert('Please choose a future deadline.'); return; }
+  
   bookingDeadline = nextDate;
-  localStorage.setItem('bookingDeadline', bookingDeadline.toISOString());
-  document.getElementById('deadlineAdminNote').textContent = `Current deadline: ${bookingDeadline.toLocaleString()}`;
+
+  const { error } = await sb.from('settings').upsert({ 
+    key: 'booking_deadline', 
+    value: bookingDeadline.toISOString() 
+  });
+  
+  if (error) {
+    alert('Failed to save globally: ' + error.message);
+    return;
+  }
+
+  document.getElementById('deadlineAdminNote').textContent = `Current global deadline: ${bookingDeadline.toLocaleString()}`;
   updateCountdown();
-  alert('Booking deadline updated.');
+  alert('Booking deadline updated globally for all users.');
 }
 
 function updateCountdown(){
+  if (!bookingDeadline) return;
   const now = new Date();
+  
   let remaining = Math.max(0, Math.floor((bookingDeadline - now) / 1000));
+  
   const days = Math.floor(remaining / 86400);
   remaining %= 86400;
+  
   const hours = Math.floor(remaining / 3600);
+  remaining %= 3600;
+  
+  const minutes = Math.floor(remaining / 60);
   const seconds = remaining % 60;
+  
   document.getElementById('countDays').textContent = days;
   document.getElementById('countHours').textContent = String(hours).padStart(2,'0');
+  document.getElementById('countMinutes').textContent = String(minutes).padStart(2,'0');
   document.getElementById('countSeconds').textContent = String(seconds).padStart(2,'0');
 }
 
@@ -1010,7 +1118,7 @@ async function init(){
   renderStepsBar();
   await loadRoomOptions();
   await loadGalleryImages();
-  loadDeadline();
+  await loadDeadline();
   updateCountdown();
   setInterval(updateCountdown, 1000);
   checkPlaceholders();
