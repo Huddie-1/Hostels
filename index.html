@@ -349,7 +349,7 @@
       <!-- STEP 4 -->
       <div class="form-step hidden" id="stepPanel4">
         <h3>🧾 Step 4: Payment Proof</h3>
-        <p style="color:var(--muted);font-size:13.5px;margin-top:-10px;">Make payment using the details below, then upload your receipt. Your booking will stay <strong>pending</strong> until an admin verifies it.</p>
+        <p style="color:var(--muted);font-size:13.5px;margin-top:-10px;">Make payment using the details below, then enter your confirmation code. Your booking will stay <strong>pending</strong> until an admin verifies it.</p>
         <div class="payment-card" id="paymentSummary">
           <div class="summary-row"><span>Student Name</span><strong id="paymentStudentName">—</strong></div>
           <div class="summary-row"><span>Selected Room</span><strong id="paymentRoomName">—</strong></div>
@@ -359,15 +359,11 @@
           <div class="summary-row"><span>Paybill Number</span><strong>516600</strong></div>
           <div class="summary-row"><span>Account Number</span><strong>5574673001</strong></div>
           <div class="summary-row"><span>Amount</span><strong id="paymentTotalDueAlt">KES 0</strong></div>
-          <p style="margin-top:12px;color:var(--muted);font-size:13px;">Use the Paybill number and account number above when making payment. After payment, upload your receipt below.</p>
+          <p style="margin-top:12px;color:var(--muted);font-size:13px;">Use the Paybill number and account number above when making payment. After payment, enter your confirmation code below.</p>
         </div>
         <div class="field">
           <label>Confirmation Code <span class="req">*</span></label>
           <input id="f_mpesa_code" placeholder="" style="text-transform: uppercase;">
-        </div>
-        <div class="upload-box" id="uploadBox" onclick="document.getElementById('f_proof').click()">
-          <div id="uploadLabel">📎 Click to upload receipt (image or PDF)</div>
-          <input type="file" id="f_proof" accept="image/*,application/pdf" style="display:none" onchange="onFileChosen(event)">
         </div>
         <div class="form-actions"><button class="btn btn-outline" style="border-color:var(--line);color:var(--ink);" onclick="goStep(3)">← Previous</button><button class="btn btn-gold" id="submitBtn" onclick="submitBooking()">Submit Booking</button></div>
         <div class="err-msg" id="submitErr"></div>
@@ -379,7 +375,7 @@
           <h3 style="border:none;">✅ Booking Submitted</h3>
           <p style="color:var(--muted);">Save this reference code — you'll need it to check your status.</p>
           <div class="code" id="refCodeOut"></div>
-          <p style="color:var(--muted);font-size:13px;">Our housing office will verify your payment proof and update your status shortly.</p>
+          <p style="color:var(--muted);font-size:13px;">Our housing office will verify your payment and update your status shortly.</p>
         </div>
       </div>
     </div>
@@ -744,17 +740,11 @@ async function submitBooking(){
     return;
   }
 
-  // Prevent submission if no file uploaded
-  if(!uploadedFile){ errEl.textContent = 'Please upload your payment proof.'; return; }
-
   const btn = document.getElementById('submitBtn');
   btn.disabled = true; btn.textContent = 'Submitting…';
 
   try{
     const reference = genReference();
-    const filePath = `${reference}/${uploadedFile.name}`;
-    const { error: upErr } = await sb.storage.from('payment-proofs').upload(filePath, uploadedFile);
-    if(upErr) throw upErr;
 
     const payload = {
       reference_code: reference,
@@ -771,7 +761,7 @@ async function submitBooking(){
       emergency_phone: document.getElementById('f_ec_phone').value.trim().replace(/\s+/g, ''),
       room_type_id: selectedRoomId,
       addon_selected: addonChecked,
-      payment_proof_path: filePath,
+      payment_proof_path: null,
       transaction_code: mpesaCode,
       payment_status: 'pending'
     };
